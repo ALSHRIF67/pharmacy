@@ -9,7 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'barcode', 'base_price', 'category_id', 'sync_status'];
+    protected $fillable = ['name', 'barcode', 'base_price', 'quantity', 'category_id', 'sync_status'];
 
     public function category()
     {
@@ -29,5 +29,10 @@ class Product extends Model
     public function batches()
     {
         return $this->hasMany(Batch::class);
+    }
+
+    public function getQuantityAttribute()
+    {
+        return $this->stockMovements()->selectRaw('SUM(CASE WHEN type = "IN" THEN quantity WHEN type = "OUT" THEN -quantity ELSE quantity END) as total')->value('total') ?? 0;
     }
 }

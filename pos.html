@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'نقطة البيع — الصيدلية')</title>
+    <meta name="csrf-token" content="Ab7S6wipWGJVSbpmQQnXjfQaLuhIiVjhJw27dM66">
+    <title>نقطة البيع</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/dexie/dist/dexie.js"></script>
@@ -15,10 +15,10 @@
 
         /* ─── TOKENS ─────────────────────────────────── */
         :root{
-          --bg:#ffffff;--surf:#f8f9fa;--surf2:#e9ecef;
-          --accent:#28a745;--accent2:#71c17a;
-          --green:#28a745;--red:#ef4444;--yellow:#f59e0b;
-          --text:#111827;--muted:#6c757d;--border:#dee2e6;
+          --bg:#0f1117;--surf:#1a1d27;--surf2:#22263a;
+          --accent:#6c63ff;--accent2:#8b85ff;
+          --green:#10b981;--red:#ef4444;--yellow:#f59e0b;
+          --text:#f1f5f9;--muted:#94a3b8;--border:#2d3148;
           --r:12px;
         }
 
@@ -123,14 +123,14 @@
           content:'';position:absolute;top:0;right:0;width:3px;height:100%;
           background:var(--accent);transform:scaleY(0);transition:transform .2s;transform-origin:top;
         }
-        .pcard:hover{background:var(--surf2);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(40,167,69,.15)}
+        .pcard:hover{background:var(--surf2);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,99,255,.15)}
         .pcard:hover::after{transform:scaleY(1)}
         .pc-cat{font-size:10px;color:var(--accent2);font-weight:600;text-transform:uppercase}
         .pc-name{font-size:13px;font-weight:700;line-height:1.3}
         .pc-bc{font-size:10px;color:var(--muted);font-family:monospace}
         .pc-price{font-size:15px;font-weight:900;color:var(--green);margin-top:2px}
         .pc-edit{
-          position:absolute;top:8px;left:8px;background:rgba(40,167,69,.12);
+          position:absolute;top:8px;left:8px;background:rgba(108,99,255,.2);
           color:var(--accent2);border:none;border-radius:6px;cursor:pointer;
           font-size:11px;padding:2px 7px;opacity:0;transition:opacity .2s;font-family:'Cairo',sans-serif;
         }
@@ -210,7 +210,7 @@
         .tbl-nm{font-weight:600}
         .tbl-bc{font-family:monospace;font-size:12px;color:var(--muted)}
         .tbl-pr{font-weight:700;color:var(--green);white-space:nowrap}
-        .tbl-cat{font-size:11px;background:rgba(40,167,69,.12);color:var(--accent2);padding:2px 8px;border-radius:20px;white-space:nowrap}
+        .tbl-cat{font-size:11px;background:rgba(108,99,255,.15);color:var(--accent2);padding:2px 8px;border-radius:20px;white-space:nowrap}
         .tbl-acts{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 
         .pager{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;flex-shrink:0}
@@ -302,18 +302,138 @@
 <header>
     <div class="brand"><span>💊</span><h1>صيدلية — نقطة البيع</h1></div>
     <div class="tab-bar">
-        <a href="{{ route('pos.index') }}" class="tab-btn @if(Route::currentRouteName() === 'pos.index') active @endif">🛒 البيع</a>
-        <a href="{{ route('pos.table') }}" class="tab-btn @if(Route::currentRouteName() === 'pos.table') active @endif">📋 المنتجات</a>
+        <a href="http://127.0.0.1:8000/pos" class="tab-btn  active ">🛒 البيع</a>
+        <a href="http://127.0.0.1:8000/pos/table" class="tab-btn ">📋 المنتجات</a>
     </div>
     <div id="hdr-mid"><span id="prod-count">جاري التحميل...</span></div>
     <div id="conn-badge"><div class="dot" id="cdot"></div><span id="ctxt">متصل</span></div>
 </header>
 
 <main>
-    @yield('content')
+    <div id="pos-view" style="display:flex; flex:1; overflow:hidden; height:100%;">
+    <!-- Products Panel -->
+    <div id="products-panel">
+        <div class="toolbar">
+            <div class="sbox">
+                <span class="sico">🔍</span>
+                <input type="text" id="srch" placeholder="بحث بالاسم أو الباركود..." oninput="window.renderGrid()">
+            </div>
+            <input type="text" id="barcode-input" placeholder="📷 باركود + Enter">
+            <button class="btn btn-w" id="qr-btn" onclick="window.toggleQr()">📷 مسح QR</button>
+            <button class="btn btn-g" onclick="window.loadProducts()" title="تحديث">🔄</button>
+        </div>
+        <!-- QR Reader -->
+        <div id="qr-wrap"><button id="qr-x" onclick="window.stopQr()">✕</button><div id="reader"></div></div>
+        <!-- Grid -->
+        <div id="prod-grid"><div class="g-load"><div class="spin"></div><p>جاري التحميل...</p></div></div>
+    </div>
+
+    <!-- Cart Panel -->
+    <div id="cart-panel">
+    <div class="cart-hdr">
+        <h2>🛒 السلة</h2>
+        <span id="cart-cnt">0</span>
+    </div>
+
+    <div id="cart-body">
+        <table class="table-auto w-full">
+            <thead>
+                <tr>
+                    <th class="text-right">المنتج</th>
+                    <th class="text-center">الكمية</th>
+                    <th class="text-center">السعر</th>
+                    <th class="text-center">المجموع</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="cart-items">
+                <!-- JS will render cart rows here -->
+            </tbody>
+        </table>
+        <div id="cart-empty" class="mt-4 text-center text-muted">
+            السلة فارغة — انقر منتجاً لإضافته
+        </div>
+    </div>
+
+    <div class="cart-foot">
+        <div class="tot-row">
+            <span class="tot-lbl">الإجمالي</span>
+            <span id="cart-total">0.00 ر.س</span>
+        </div>
+        <button id="checkout-btn" class="btn btn-primary">✅ إتمام البيع</button>
+    </div>
+
+    <!-- Edit / New Product Modal (used by resources/js/pos/main.js) -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center">
+        <div class="bg-white p-4 rounded w-11/12 max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title">New Product Found</h3>
+                <button id="close-modal">✕</button>
+            </div>
+            <form id="edit-form">
+                <div class="mb-2">
+                    <label>Barcode</label>
+                    <input id="edit-barcode" name="barcode" class="w-full" />
+                </div>
+                <div class="mb-2">
+                    <label>Name</label>
+                    <input id="edit-name" name="name" class="w-full" />
+                </div>
+                <div class="mb-2">
+                    <label>Price</label>
+                    <input id="edit-price" name="price" type="number" step="0.01" class="w-full" />
+                </div>
+                <div class="mb-2">
+                    <label>Batch</label>
+                    <input id="edit-batch" name="batch" class="w-full" />
+                </div>
+                <div class="mb-2">
+                    <label>Expiry</label>
+                    <input id="edit-expiry" name="expiry" type="date" class="w-full" />
+                </div>
+                <div class="mb-2">
+                    <label>Stock</label>
+                    <input id="edit-stock" name="stock" type="number" step="0.01" class="w-full" />
+                </div>
+                <div class="mt-4 text-right">
+                    <button type="submit" class="btn btn-g">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Recent Sales -->
+<div style="margin-top: 20px;">
+    <h3>Recent Sales</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+                    </tbody>
+    </table>
+</div>
 </main>
 
-@include('pos.components.invoice-modal')
+<!-- Invoice Modal (shared, only needed on POS but included globally for simplicity) -->
+<div class="mo" id="inv-modal">
+    <div class="mbox" style="max-width:500px">
+        <div class="mhd"><h2>🧾 الفاتورة</h2><button class="mcls" onclick="closeModal('inv-modal')">✕</button></div>
+        <div class="mbdy"><div id="inv-content"></div></div>
+        <div class="mftr">
+            <button class="btn btn-g" onclick="closeModal('inv-modal')">إغلاق</button>
+            <button class="btn btn-p" onclick="window.print()">🖨 طباعة</button>
+        </div>
+    </div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="mo" id="del-modal">
@@ -329,7 +449,13 @@
 
 <div id="toasts"></div>
 
-<script src="{{ asset('js/pos.js') }}"></script>
-@stack('scripts')
+<script src="http://127.0.0.1:8000/js/pos.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.initPOS === 'function') {
+            window.initPOS();
+        }
+    });
+</script>
 </body>
 </html>

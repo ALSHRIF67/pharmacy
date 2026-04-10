@@ -44,7 +44,7 @@ class SaleApiTest extends TestCase
                  ->assertJsonPath('message', 'Sale processed successfully');
 
         $this->assertDatabaseHas('sales', ['total_price' => 500]);
-        $this->assertDatabaseHas('stock_measurements', [
+        $this->assertDatabaseHas('stock_movements', [
             'product_id' => $product->id,
             'batch_id' => $batch->id,
             'type' => 'OUT',

@@ -28,3 +28,4 @@ Route::get('/products/search', function (Request $request) {
 });
 
 Route::post('/sales', [SaleController::class, 'store']);
+Route::delete('/sales/{sale}', [SaleController::class, 'destroy']);

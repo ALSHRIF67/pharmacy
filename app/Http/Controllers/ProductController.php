@@ -55,7 +55,7 @@ class ProductController extends Controller
                     'barcode'  => $product->barcode,
                     'price'    => (float) $product->base_price,
                     'category' => $product->category->name ?? null,
-                    'stock'    => $product->batches->count(),
+                    'stock'    => $product->quantity,
                 ];
             });
 

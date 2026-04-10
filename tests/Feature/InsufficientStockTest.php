@@ -12,7 +12,7 @@ class InsufficientStockTest extends TestCase
 
     public function test_fails_when_stock_not_enough()
     {
-        $product = Product::factory()->create(['quantity' => 1, 'price' => 5]);
+        $product = Product::factory()->create(['quantity' => 1, 'base_price' => 5]);
 
         $payload = [
             'items' => [

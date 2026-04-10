@@ -153,27 +153,64 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     checkoutBtn.onclick = async () => {
-        if (cart.length === 0) return alert('Cart is empty!');
-        
-        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const sale = {
-            items: [...cart],
-            total_price: total,
-            created_at: new Date(),
-            synched: 0
-        };
+        if (cart.length === 0) return alert('السلة فارغة!');
 
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+        // If online, try server checkout
+        if (navigator.onLine) {
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const resp = await fetch('/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ items: cart, total_price: total })
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({ message: 'Checkout failed' }));
+                    return alert(err.message || 'Checkout failed');
+                }
+
+                const data = await resp.json();
+                cart = [];
+                renderCart();
+
+                if (confirm('تمت عملية البيع بنجاح. هل تريد طباعة الفاتورة؟')) {
+                    // open invoice view and trigger print
+                    const win = window.open(`/pos/invoice/${data.id}?print=1`, '_blank');
+                    if (!win) alert('فتح نافذة الطباعة محظور، الرجاء السماح بالنوافذ المنبثقة.');
+                } else {
+                    alert('تمت عملية البيع بنجاح');
+                }
+
+            } catch (err) {
+                console.error('Checkout failed:', err);
+                alert('فشل في إتمام البيع عبر الخادم؛ سيتم حفظ العملية محلياً.');
+                // fallback to offline save
+            }
+        }
+
+        // Offline fallback / queue
         try {
-            // Save sale to Dexie
+            const sale = {
+                items: [...cart],
+                total_price: total,
+                created_at: new Date(),
+                synched: 0
+            };
+
             await db.sales.add(sale);
             await queueSyncAction('SALE_CREATE', sale);
 
             cart = [];
             renderCart();
-            alert('Sale completed offline!');
         } catch (err) {
             console.error('Checkout failed:', err);
-            alert('Checkout failed! See console for details.');
         }
     };
 

@@ -34,7 +34,13 @@ class ReportController extends Controller
             ->limit(5)
             ->get();
 
-        $sales = Sale::with('items.product')->get();
+        $query = Sale::query();
+
+        if (request()->has(['from', 'to'])) {
+            $query->whereBetween('created_at', [request()->from, request()->to]);
+        }
+
+        $sales = $query->with('saleItems.product')->get();
 
         return view('reports.index', compact(
             'todaySales', 
@@ -67,6 +73,6 @@ class ReportController extends Controller
             $query->whereBetween('created_at', [$request->from, $request->to]);
         }
 
-        return $query->with('items.product')->get();
+        return $query->with('saleItems.product')->get();
     }
 }

@@ -151,12 +151,74 @@ function addToCart(product) {
 }
 
 function renderCart() {
+  const tbody = document.getElementById('cart-items');
   const body = document.getElementById('cart-body');
+  const table = document.querySelector('#cart-body table');
+  const emptyMsg = document.getElementById('cart-empty');
   const totEl = document.getElementById('cart-tot');
   const cntEl = document.getElementById('cart-cnt');
   const chkBtn = document.getElementById('chk-btn');
-  if (!body) return;
+  
+  if (!body && !tbody) return;
 
+  // New Table Structure
+  if (tbody) {
+    if (!cart.length) {
+      if (table) table.style.display = 'none';
+      if (emptyMsg) emptyMsg.style.display = 'block';
+      if (totEl) totEl.textContent = '0.00 ر.س';
+      if (cntEl) cntEl.textContent = '0';
+      if (chkBtn) chkBtn.disabled = true;
+      return;
+    }
+
+    if (table) table.style.display = 'table';
+    if (emptyMsg) emptyMsg.style.display = 'none';
+
+    let total = 0;
+    tbody.innerHTML = '';
+    cart.forEach((item, idx) => {
+      const price = parseFloat(item.price) || 0;
+      const sub = price * item.qty;
+      total += sub;
+      const row = document.createElement('tr');
+      row.className = 'border-b hover:bg-gray-50';
+      row.innerHTML = `
+        <td class="text-right py-2 px-2">${escapeHtml(item.name)}</td>
+        <td class="text-center py-2 px-2">
+          <div class="ci-ctrl" style="justify-content: center;">
+            <button class="qbtn" data-i="${idx}" data-a="dec">−</button>
+            <span class="qnum">${item.qty}</span>
+            <button class="qbtn" data-i="${idx}" data-a="inc">+</button>
+          </div>
+        </td>
+        <td class="text-center py-2 px-2 text-muted">${fmt(price)}</td>
+        <td class="text-center py-2 px-2" style="font-weight:bold;">${fmt(sub)}</td>
+        <td class="text-center py-2 px-2">
+          <button class="delbtn" data-i="${idx}" style="color:var(--red); font-size:18px;">🗑</button>
+        </td>`;
+      tbody.appendChild(row);
+    });
+
+    tbody.querySelectorAll('.qbtn').forEach(btn => btn.addEventListener('click', () => {
+      const i = +btn.dataset.i;
+      if (btn.dataset.a === 'inc') cart[i].qty++;
+      else if (cart[i].qty > 1) cart[i].qty--;
+      else cart.splice(i, 1);
+      renderCart();
+    }));
+    tbody.querySelectorAll('.delbtn').forEach(btn => btn.addEventListener('click', () => {
+      cart.splice(+btn.dataset.i, 1);
+      renderCart();
+    }));
+
+    if (totEl) totEl.textContent = fmt(total) + ' ر.س';
+    if (cntEl) cntEl.textContent = cart.reduce((s, i) => s + i.qty, 0);
+    if (chkBtn) chkBtn.disabled = false;
+    return;
+  }
+
+  // Fallback for old div structure
   if (!cart.length) {
     body.innerHTML = '<div class="cart-e"><div class="eico">🛍️</div><p>السلة فارغة</p><small style="color:var(--muted)">انقر منتجاً لإضافته</small></div>';
     if (totEl) totEl.textContent = '0.00 ر.س';
@@ -239,17 +301,27 @@ async function checkout() {
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, Accept: 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (res.ok) toast('✅ تمت عملية البيع بنجاح', 's');
-    else throw new Error('Server ' + res.status);
-  } catch {
-    await db.sales.add({ ...payload, synched: 0 });
-    await db.sync_queue.add({ type: 'SALE_CREATE', data: payload, timestamp: new Date() });
-    toast('📦 تم الحفظ محلياً — مزامنة لاحقاً', 'i');
+    if (res.ok) {
+        toast('✅ تمت عملية البيع بنجاح', 's');
+    } else {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || 'Server ' + res.status);
+    }
+  } catch (err) {
+    if (err.message && !err.message.startsWith('Server ') && err.message !== 'Failed to fetch') {
+        toast('❌ خطأ: ' + err.message, 'e');
+        if (btn) { btn.disabled = false; btn.textContent = 'إتمام البيع'; }
+        return;
+    } else {
+        await db.sales.add({ ...payload, synched: 0 });
+        await db.sync_queue.add({ type: 'SALE_CREATE', data: payload, timestamp: new Date() });
+        toast('📦 تم الحفظ محلياً — مزامنة لاحقاً', 'i');
+    }
   }
 
   cart = [];
   renderCart();
-  if (btn) btn.textContent = '✅ إتمام البيع';
+  if (btn) btn.textContent = 'إتمام البيع';
   showInvoice(invData);
 }
 

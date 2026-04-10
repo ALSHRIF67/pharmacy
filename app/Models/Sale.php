@@ -9,7 +9,9 @@ class Sale extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['product_id', 'quantity', 'price', 'total_price', 'customer_id', 'sync_status', 'created_at'];
+    const UPDATED_AT = null;
+
+    protected $fillable = ['total_price', 'customer_id', 'sync_status', 'created_at'];
 
     public function customer()
     {
@@ -22,6 +24,11 @@ class Sale extends Model
     }
 
     public function saleItems()
+    {
+        return $this->hasMany(SaleItem::class);
+    }
+
+    public function items()
     {
         return $this->hasMany(SaleItem::class);
     }

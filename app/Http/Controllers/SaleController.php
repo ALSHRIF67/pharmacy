@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\SaleService;
+use App\Models\Sale;
 
 class SaleController extends Controller
 {
@@ -37,29 +38,34 @@ class SaleController extends Controller
     public function index()
     {
         $sales = Sale::latest()->get();
-        return view('pos.index', compact('sales'));
+        return view('sales.index', compact('sales'));
     }
 
     public function create()
     {
-        return view('pos.create');
+        return redirect()->route('pos.index');
     }
 
     public function show(Sale $sale)
     {
-        $sale->load('items.product');
-        return view('pos.show', compact('sale'));
+        $sale->load('saleItems.product');
+        return view('sales.show', compact('sale'));
     }
 
     public function edit(Sale $sale)
     {
-        $sale->load('items.product');
-        return view('pos.edit', compact('sale'));
+        // Sales should not be editable. Redirect to view or index.
+        return redirect()->route('sales.show', $sale->id)->with('error', 'لا يمكن تعديل الفواتير بعد إصدارها.');
     }
 
-    public function destroy(Sale $sale)
+    public function destroy(\Illuminate\Http\Request $request, Sale $sale)
     {
         $sale->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Sale deleted'], 200);
+        }
+
         return redirect()->route('sales.index');
     }
 }

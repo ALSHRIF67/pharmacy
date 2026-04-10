@@ -21,6 +21,9 @@ Route::resource('customers', \App\Http\Controllers\CustomerController::class);
 Route::resource('suppliers', \App\Http\Controllers\SupplierController::class);
 Route::resource('purchases', \App\Http\Controllers\PurchaseController::class)->only(['index', 'create', 'store', 'show']);
 
+// Sales resource for web (delete/edit/show) to support POS flows and tests
+Route::resource('sales', \App\Http\Controllers\SaleController::class)->only(['index','create','store','show','edit','update','destroy']);
+
 Route::get('/reports', [\App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
 Route::get('/sync', [\App\Http\Controllers\SyncController::class, 'index'])->name('sync.index');
 Route::post('/sync/push', [\App\Http\Controllers\SyncController::class, 'push'])->name('sync.push');

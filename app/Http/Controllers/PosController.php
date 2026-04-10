@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Sale;
+use App\Services\SaleService;
 
 class PosController extends Controller
 {
     public function index()
     {
         $products = Product::all();
-        $sales = Sale::with('product')->latest()->get();
+        $sales = Sale::with('saleItems.product')->latest()->get();
         return view('pos.index', compact('products', 'sales'));
     }
 
@@ -25,19 +26,26 @@ class PosController extends Controller
         return view('pos.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, SaleService $saleService)
     {
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => 'required|numeric|min:1',
             'price' => 'required|numeric|min:0',
         ]);
 
-        $validated['total'] = $validated['quantity'] * $validated['price'];
-
-        Sale::create($validated);
-
-        return redirect()->route('pos.create')->with('success', 'Sale recorded successfully.');
+        try {
+            $saleService->processSale([
+                [
+                    'product_id' => $validated['product_id'],
+                    'quantity' => $validated['quantity'],
+                    'price' => $validated['price']
+                ]
+            ]);
+            return redirect()->route('pos.create')->with('success', 'Sale recorded successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 
     public function show($id)

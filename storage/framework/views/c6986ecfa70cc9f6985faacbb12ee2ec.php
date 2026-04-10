@@ -15,10 +15,10 @@
 
         /* ─── TOKENS ─────────────────────────────────── */
         :root{
-          --bg:#0f1117;--surf:#1a1d27;--surf2:#22263a;
-          --accent:#6c63ff;--accent2:#8b85ff;
-          --green:#10b981;--red:#ef4444;--yellow:#f59e0b;
-          --text:#f1f5f9;--muted:#94a3b8;--border:#2d3148;
+          --bg:#ffffff;--surf:#f8f9fa;--surf2:#e9ecef;
+          --accent:#28a745;--accent2:#71c17a;
+          --green:#28a745;--red:#ef4444;--yellow:#f59e0b;
+          --text:#111827;--muted:#6c757d;--border:#dee2e6;
           --r:12px;
         }
 
@@ -123,14 +123,14 @@
           content:'';position:absolute;top:0;right:0;width:3px;height:100%;
           background:var(--accent);transform:scaleY(0);transition:transform .2s;transform-origin:top;
         }
-        .pcard:hover{background:var(--surf2);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,99,255,.15)}
+        .pcard:hover{background:var(--surf2);border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 20px rgba(40,167,69,.15)}
         .pcard:hover::after{transform:scaleY(1)}
         .pc-cat{font-size:10px;color:var(--accent2);font-weight:600;text-transform:uppercase}
         .pc-name{font-size:13px;font-weight:700;line-height:1.3}
         .pc-bc{font-size:10px;color:var(--muted);font-family:monospace}
         .pc-price{font-size:15px;font-weight:900;color:var(--green);margin-top:2px}
         .pc-edit{
-          position:absolute;top:8px;left:8px;background:rgba(108,99,255,.2);
+          position:absolute;top:8px;left:8px;background:rgba(40,167,69,.12);
           color:var(--accent2);border:none;border-radius:6px;cursor:pointer;
           font-size:11px;padding:2px 7px;opacity:0;transition:opacity .2s;font-family:'Cairo',sans-serif;
         }
@@ -210,7 +210,7 @@
         .tbl-nm{font-weight:600}
         .tbl-bc{font-family:monospace;font-size:12px;color:var(--muted)}
         .tbl-pr{font-weight:700;color:var(--green);white-space:nowrap}
-        .tbl-cat{font-size:11px;background:rgba(108,99,255,.15);color:var(--accent2);padding:2px 8px;border-radius:20px;white-space:nowrap}
+        .tbl-cat{font-size:11px;background:rgba(40,167,69,.12);color:var(--accent2);padding:2px 8px;border-radius:20px;white-space:nowrap}
         .tbl-acts{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 
         .pager{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px;flex-shrink:0}
