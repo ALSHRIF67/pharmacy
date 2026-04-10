@@ -40,6 +40,28 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'تم إضافة المنتج بنجاح');
     }
 
+    /**
+     * API: Return all products for POS product grid
+     */
+    public function apiIndex()
+    {
+        $products = \App\Models\Product::with(['category', 'batches'])
+            ->select('id', 'name', 'barcode', 'base_price', 'category_id')
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id'       => $product->id,
+                    'name'     => $product->name,
+                    'barcode'  => $product->barcode,
+                    'price'    => (float) $product->base_price,
+                    'category' => $product->category->name ?? null,
+                    'stock'    => $product->batches->count(),
+                ];
+            });
+
+        return response()->json($products);
+    }
+
     public function getByBarcode($barcode)
     {
         $product = $this->productService->getByBarcode($barcode);
@@ -48,7 +70,12 @@ class ProductController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
-        return response()->json($product->load('batches'));
+        return response()->json([
+            'id'      => $product->id,
+            'name'    => $product->name,
+            'barcode' => $product->barcode,
+            'price'   => (float) $product->base_price,
+        ]);
     }
 
     public function edit($id)

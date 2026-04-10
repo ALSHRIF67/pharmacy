@@ -8,7 +8,7 @@ export default defineConfig({
                 'resources/css/app.css', 
                 'resources/js/app.js',
                 'resources/js/offline/db.js',
-                'resources/js/pos/scanner.js'
+                'resources/js/pos/main.js'
             ],
             refresh: true,
         }),
