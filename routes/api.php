@@ -16,4 +16,15 @@ Route::prefix('products')->group(function () {
     Route::post('/update', [ProductController::class, 'apiUpdate']); // Fixed: was calling wrong 'update' method
 });
 
+Route::get('/products/search', function (Request $request) {
+    $barcode = $request->query('barcode');
+    $product = Product::where('barcode', $barcode)->first();
+
+    if (!$product) {
+        return response()->json(['message' => 'Product not found'], 404);
+    }
+
+    return response()->json($product);
+});
+
 Route::post('/sales', [SaleController::class, 'store']);

@@ -3,16 +3,19 @@
 @section('title', 'إدارة المنتجات')
 
 @section('content')
-<div id="table-view" style="display:flex; flex:1; flex-direction:column; overflow:hidden; height:100%;">
-    <div class="toolbar">
-        <div class="sbox" style="flex:1">
-            <span class="sico">🔍</span>
-            <input type="text" id="tsrch" placeholder="بحث في المنتجات..." oninput="window.currentPage=1;window.renderTable()">
+<div class="max-w-7xl mx-auto bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-gray-700">إدارة المنتجات</h3>
+        <div class="flex space-x-4">
+            <input type="text" id="tsrch" placeholder="بحث في المنتجات..."
+                class="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all outline-none">
+            <a href="{{ route('pos.create') }}" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-emerald-200 transition-all hover:-translate-y-1">
+                + منتج جديد
+            </a>
         </div>
-        <a href="{{ route('pos.create') }}" class="btn btn-p">＋ منتج جديد</a>
-        <button class="btn btn-g" onclick="window.loadProducts()">🔄 تحديث</button>
     </div>
-    <div class="tbl-wrap">
+
+    <div class="p-8">
         @include('pos.components.product-table')
     </div>
 </div>

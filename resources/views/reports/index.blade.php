@@ -75,5 +75,51 @@
             </div>
         </div>
     </div>
+
+    <form method="GET" action="{{ route('reports.index') }}" class="mb-6">
+        <div class="flex space-x-4">
+            <div>
+                <label for="from" class="block text-sm font-medium text-gray-700">من</label>
+                <input type="date" id="from" name="from" class="w-full px-4 py-3 rounded-lg border border-gray-200">
+            </div>
+            <div>
+                <label for="to" class="block text-sm font-medium text-gray-700">إلى</label>
+                <input type="date" id="to" name="to" class="w-full px-4 py-3 rounded-lg border border-gray-200">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl">فلترة</button>
+            </div>
+        </div>
+    </form>
+
+    <h2 class="text-xl font-bold mb-4">الفواتير</h2>
+    <table class="w-full border-collapse">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="p-3 text-sm font-medium text-gray-700">رقم الفاتورة</th>
+                <th class="p-3 text-sm font-medium text-gray-700">الإجمالي</th>
+                <th class="p-3 text-sm font-medium text-gray-700">التاريخ</th>
+                <th class="p-3 text-sm font-medium text-gray-700">الإجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($sales as $sale)
+                <tr class="border-b">
+                    <td class="p-3 text-sm text-gray-700">{{ $sale->id }}</td>
+                    <td class="p-3 text-sm text-emerald-600 font-bold">{{ number_format($sale->total_price, 2) }}</td>
+                    <td class="p-3 text-sm text-gray-700">{{ $sale->created_at }}</td>
+                    <td class="p-3 text-sm">
+                        <a href="{{ route('sales.show', $sale->id) }}" class="text-blue-500 hover:underline">عرض</a>
+                        <a href="{{ route('sales.edit', $sale->id) }}" class="text-yellow-500 hover:underline">تعديل</a>
+                        <form action="{{ route('sales.destroy', $sale->id) }}" method="POST" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:underline">حذف</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>
 @endsection

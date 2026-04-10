@@ -3,9 +3,8 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Models\Product;
-use App\Models\Batch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Product;
 
 class BarcodeLookupTest extends TestCase
 {

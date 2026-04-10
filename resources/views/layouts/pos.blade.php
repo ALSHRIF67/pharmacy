@@ -304,7 +304,6 @@
     <div class="tab-bar">
         <a href="{{ route('pos.index') }}" class="tab-btn @if(Route::currentRouteName() === 'pos.index') active @endif">🛒 البيع</a>
         <a href="{{ route('pos.table') }}" class="tab-btn @if(Route::currentRouteName() === 'pos.table') active @endif">📋 المنتجات</a>
-        <a href="{{ route('pos.create') }}" class="tab-btn @if(Route::currentRouteName() === 'pos.create') active @endif">＋ إضافة</a>
     </div>
     <div id="hdr-mid"><span id="prod-count">جاري التحميل...</span></div>
     <div id="conn-badge"><div class="dot" id="cdot"></div><span id="ctxt">متصل</span></div>
@@ -314,17 +313,7 @@
     @yield('content')
 </main>
 
-<!-- Invoice Modal -->
-<div class="mo" id="inv-modal">
-    <div class="mbox" style="max-width:500px">
-        <div class="mhd"><h2>🧾 الفاتورة</h2><button class="mcls" onclick="closeModal('inv-modal')">✕</button></div>
-        <div class="mbdy"><div id="inv-content"></div></div>
-        <div class="mftr">
-            <button class="btn btn-g" onclick="closeModal('inv-modal')">إغلاق</button>
-            <button class="btn btn-p" onclick="window.print()">🖨 طباعة</button>
-        </div>
-    </div>
-</div>
+@include('pos.components.invoice-modal')
 
 <!-- Delete Confirmation Modal -->
 <div class="mo" id="del-modal">

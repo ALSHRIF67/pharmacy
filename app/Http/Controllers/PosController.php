@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Sale;
 
 class PosController extends Controller
 {
     public function index()
     {
-        return view('pos.index');
+        $products = Product::all();
+        $sales = Sale::with('product')->latest()->get();
+        return view('pos.index', compact('products', 'sales'));
     }
 
     public function table()
@@ -25,18 +28,16 @@ class PosController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'barcode' => 'required|string|unique:products,barcode',
-            'name' => 'required|string|max:255',
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
-            'stock' => 'nullable|numeric|min:0',
-            'batch' => 'required|string',
-            'expiry' => 'required|date',
-            'notes' => 'nullable|string',
         ]);
-        
-        Product::create($validated);
-        
-        return redirect()->route('pos.table')->with('success', 'تم إضافة المنتج بنجاح');
+
+        $validated['total'] = $validated['quantity'] * $validated['price'];
+
+        Sale::create($validated);
+
+        return redirect()->route('pos.create')->with('success', 'Sale recorded successfully.');
     }
 
     public function show($id)

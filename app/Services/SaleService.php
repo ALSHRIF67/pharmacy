@@ -33,6 +33,16 @@ class SaleService
             $totalPrice = 0;
 
             foreach ($items as $item) {
+                // Validate product existence and stock
+                $product = $this->inventoryService->getProduct($item['product_id']);
+                if (!$product) {
+                    throw new \Exception("Product not found: ID {$item['product_id']}");
+                }
+
+                if ($product->quantity < $item['quantity']) {
+                    throw new \Exception("Insufficient stock for product: {$product->name}");
+                }
+
                 $totalPrice += $this->processSaleItem($sale->id, $item);
             }
 

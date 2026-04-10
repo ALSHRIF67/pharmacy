@@ -33,4 +33,33 @@ class SaleController extends Controller
             return response()->json(['message' => $e->getMessage()], 400);
         }
     }
+
+    public function index()
+    {
+        $sales = Sale::latest()->get();
+        return view('pos.index', compact('sales'));
+    }
+
+    public function create()
+    {
+        return view('pos.create');
+    }
+
+    public function show(Sale $sale)
+    {
+        $sale->load('items.product');
+        return view('pos.show', compact('sale'));
+    }
+
+    public function edit(Sale $sale)
+    {
+        $sale->load('items.product');
+        return view('pos.edit', compact('sale'));
+    }
+
+    public function destroy(Sale $sale)
+    {
+        $sale->delete();
+        return redirect()->route('sales.index');
+    }
 }

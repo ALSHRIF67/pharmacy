@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Batch;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
@@ -33,12 +34,39 @@ class ReportController extends Controller
             ->limit(5)
             ->get();
 
+        $sales = Sale::with('items.product')->get();
+
         return view('reports.index', compact(
             'todaySales', 
             'monthSales', 
             'totalPurchases', 
             'activeBatches',
-            'topProducts'
+            'topProducts',
+            'sales'
         ));
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $data = $this->getReportData($request);
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\SalesExport($data), 'sales_report.xlsx');
+    }
+
+    public function exportPDF(Request $request)
+    {
+        $data = $this->getReportData($request);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('reports.pdf', $data);
+        return $pdf->download('sales_report.pdf');
+    }
+
+    private function getReportData(Request $request)
+    {
+        $query = Sale::query();
+
+        if ($request->has(['from', 'to'])) {
+            $query->whereBetween('created_at', [$request->from, $request->to]);
+        }
+
+        return $query->with('items.product')->get();
     }
 }

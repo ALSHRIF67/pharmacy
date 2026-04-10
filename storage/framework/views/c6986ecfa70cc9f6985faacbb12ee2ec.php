@@ -304,7 +304,6 @@
     <div class="tab-bar">
         <a href="<?php echo e(route('pos.index')); ?>" class="tab-btn <?php if(Route::currentRouteName() === 'pos.index'): ?> active <?php endif; ?>">🛒 البيع</a>
         <a href="<?php echo e(route('pos.table')); ?>" class="tab-btn <?php if(Route::currentRouteName() === 'pos.table'): ?> active <?php endif; ?>">📋 المنتجات</a>
-        <a href="<?php echo e(route('pos.create')); ?>" class="tab-btn <?php if(Route::currentRouteName() === 'pos.create'): ?> active <?php endif; ?>">＋ إضافة</a>
     </div>
     <div id="hdr-mid"><span id="prod-count">جاري التحميل...</span></div>
     <div id="conn-badge"><div class="dot" id="cdot"></div><span id="ctxt">متصل</span></div>
@@ -314,17 +313,7 @@
     <?php echo $__env->yieldContent('content'); ?>
 </main>
 
-<!-- Invoice Modal -->
-<div class="mo" id="inv-modal">
-    <div class="mbox" style="max-width:500px">
-        <div class="mhd"><h2>🧾 الفاتورة</h2><button class="mcls" onclick="closeModal('inv-modal')">✕</button></div>
-        <div class="mbdy"><div id="inv-content"></div></div>
-        <div class="mftr">
-            <button class="btn btn-g" onclick="closeModal('inv-modal')">إغلاق</button>
-            <button class="btn btn-p" onclick="window.print()">🖨 طباعة</button>
-        </div>
-    </div>
-</div>
+<?php echo $__env->make('pos.components.invoice-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
 <!-- Delete Confirmation Modal -->
 <div class="mo" id="del-modal">

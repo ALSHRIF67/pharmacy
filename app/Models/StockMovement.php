@@ -27,4 +27,19 @@ class StockMovement extends Model
     {
         return $this->belongsTo(Batch::class);
     }
+
+    protected static function booted()
+    {
+        static::created(function (self $movement) {
+            $product = $movement->product()->first();
+            if (! $product) return;
+
+            if ($movement->type === 'IN') {
+                $product->quantity = ($product->quantity ?? 0) + $movement->quantity;
+            } else {
+                $product->quantity = ($product->quantity ?? 0) - $movement->quantity;
+            }
+            $product->save();
+        });
+    }
 }

@@ -10,10 +10,6 @@ class UpdateStockCache
 {
     public $sale;
 
-    public function __construct($sale)
-    {
-        $this->sale = $sale;
-    }
 
     public function handle(SaleCompleted $event): void
     {
